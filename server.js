@@ -15,11 +15,28 @@ app.get('/', (req, res) => {
 
 app.post('/chat', async (req, res) => {
     try {
-        const userMessage = req.body.message;
+        const messages = req.body.messages;
 
-        if (!userMessage) {
-            return res.status(400).json({ error: 'Message is required' });
+        if (!messages || !Array.isArray(messages) || messages.length === 0) {
+            return res.status(400).json({ error: 'Messages array is required' });
         }
+
+        // سیستم پرامپت
+        const systemPrompt = {
+            role: 'system',
+            content: 'Your name is SardarNikzad. You are a friendly, helpful AI assistant. Always reply in the same language the user writes in (Persian/Dari or English). Be natural, warm, and helpful. Remember everything the user tells you in this conversation.'
+        };
+
+        // ساخت آرایه پیام‌ها برای Groq
+        const groqMessages = [systemPrompt];
+
+        // تبدیل پیام‌های اپ به فرمت Groq
+        messages.forEach(msg => {
+            groqMessages.push({
+                role: msg.isUser ? 'user' : 'assistant',
+                content: msg.text
+            });
+        });
 
         const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
@@ -29,13 +46,7 @@ app.post('/chat', async (req, res) => {
             },
             body: JSON.stringify({
                 model: 'openai/gpt-oss-120b',
-                messages: [
-                    {
-                        role: 'system',
-                        content: 'Your name is SardarNikzad. You are a friendly, helpful AI assistant. Always reply in the same language the user writes in (Persian/Dari or English). Be natural, warm, and helpful.'
-                    },
-                    { role: 'user', content: userMessage }
-                ]
+                messages: groqMessages
             })
         });
 
