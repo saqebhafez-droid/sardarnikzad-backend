@@ -4,7 +4,6 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ⚠️ کلید Groq از Environment خوانده می‌شود (امن)
 const GROQ_API_KEY = process.env.GROQ_API_KEY || "YOUR_KEY_HERE";
 
 app.use(cors());
@@ -26,7 +25,7 @@ app.post('/chat', async (req, res) => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': Bearer ${GROQ_API_KEY}
+                'Authorization': `Bearer ${GROQ_API_KEY}`
             },
             body: JSON.stringify({
                 model: 'openai/gpt-oss-120b',
@@ -57,5 +56,5 @@ app.post('/chat', async (req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(Sardar AI Server is running on port ${PORT});
+    console.log(`Sardar AI Server is running on port ${PORT}`);
 });
